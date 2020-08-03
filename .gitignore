@@ -1,0 +1,5 @@
+/target
+.env
+app/dist
+app/.cache
+app/node_modules

@@ -1,0 +1,14 @@
+{
+  "scripts": {
+    "dev": "parcel watch index.html --public-url '/app'",
+    "build": "parcel build index.html --public-url '/app'"
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.12.4",
+    "typescript": "^3.9.7"
+  },
+  "dependencies": {
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  }
+}
