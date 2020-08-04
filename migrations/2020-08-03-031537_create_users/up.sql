@@ -13,8 +13,10 @@ CREATE OR REPLACE FUNCTION os_user_default()
   LANGUAGE plpgsql AS
 $func$
 BEGIN
-   NEW.os_user := NEW.id;
-   RETURN NEW;
+  IF NEW.os_user IS NULL THEN 
+    NEW.os_user := NEW.id;
+  END IF;
+  RETURN NEW;
 END
 $func$;
 
