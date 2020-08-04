@@ -53,8 +53,10 @@ fn main() -> std::io::Result<()> {
 
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let addr = env::var("BIND_ADDR").expect("BIND_ADDR must be set");
+
     println!("Connecting to database {}", database_url);
     PgConnection::establish(&database_url).expect(&format!("Error connecting to {}", database_url));
+
     println!("Starting actix server on {}", addr);
     start(addr)
 }
