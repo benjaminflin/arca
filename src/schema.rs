@@ -3,6 +3,6 @@ table! {
         id -> Uuid,
         email -> Varchar,
         pass_hash -> Varchar,
-        os_user -> Varchar,
+        os_user -> Nullable<Varchar>,
     }
 }

@@ -6,7 +6,7 @@ pub struct User {
   pub id: uuid::Uuid,
   pub email: String,
   pub pass_hash: String,
-  pub os_user: String,
+  pub os_user: Option<String>,
 }
 
 #[derive(Queryable, Serialize)]
