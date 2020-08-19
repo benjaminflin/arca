@@ -7,6 +7,8 @@ pub mod schema;
 mod api;
 
 use actix_files::NamedFile;
+use actix_http::cookie::SameSite;
+use actix_session::CookieSession;
 use actix_web::{web, App, HttpResponse, HttpServer};
 use actix_web::{HttpRequest, Result};
 use diesel::pg::PgConnection;
@@ -50,6 +52,12 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             // '/' -> '/app'
+            .wrap(
+                CookieSession::signed(&[0; 32]) // <- create cookie based session middleware
+                    .secure(true)
+                    .http_only(true)
+                    .same_site(SameSite::Strict),
+            )
             .route(
                 "/",
                 web::get().to(|| {
