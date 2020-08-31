@@ -344,6 +344,7 @@ dependencies = [
  "publicsuffix",
  "serde",
  "serde_derive",
+ "tokio",
  "uuid",
 ]
 

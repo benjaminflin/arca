@@ -5,7 +5,13 @@ pub mod models;
 pub mod schema;
 
 mod api;
+mod file;
+mod volume;
+mod user;
+mod env;
+mod error;
 
+use crate::api::finder;
 use actix_files::NamedFile;
 use actix_http::cookie::SameSite;
 use actix_session::CookieSession;
@@ -14,14 +20,9 @@ use actix_web::{HttpRequest, Result};
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager, Pool};
 use dotenv::dotenv;
-use std::env;
 use std::path::PathBuf;
+use env::Environment;
 
-type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
-
-struct AppData {
-    pool: DbPool,
-}
 
 async fn app(req: HttpRequest) -> Result<NamedFile> {
     let dist_dir = "app/dist";
@@ -38,8 +39,8 @@ async fn app(req: HttpRequest) -> Result<NamedFile> {
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
 
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    let addr = env::var("BIND_ADDR").expect("BIND_ADDR must be set");
+    let database_url = std::env::var("DATABASE_URL").expect("Canno find DATABASE_URL in .env");
+    let addr = std::env::var("BIND_ADDR").expect("Cannot find BIND_ADDR in .env");
 
     println!("Connecting to database {}", database_url);
 
@@ -47,9 +48,13 @@ async fn main() -> std::io::Result<()> {
     let pool = Pool::builder()
         .build(manager)
         .expect("Failed to create connection pool");
-    println!("Starting actix server on {}", addr);
 
-    HttpServer::new(move || {
+    let root = finder::init();
+    println!("Starting actix server on {}", &addr);
+    
+    HttpServer::new({
+        let addr = addr.clone();
+        move || {
         App::new()
             // '/' -> '/app'
             .wrap(
@@ -72,8 +77,12 @@ async fn main() -> std::io::Result<()> {
                     .default_service(web::get().to(app)),
             )
             .service(api::service())
-            .data(AppData { pool: pool.clone() })
-    })
+            .data(Environment {
+                db_pool: pool.clone(),
+                finder_root: root.clone(),
+                bind_addr: addr.clone(),
+            })
+    }})
     .bind(addr)?
     .run()
     .await
